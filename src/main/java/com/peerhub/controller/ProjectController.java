@@ -54,7 +54,7 @@ public class ProjectController {
         }
 
         return userRepository.findById(idNum.longValue())
-                .map(studentUser -> {
+            .<ResponseEntity<?>>map(studentUser -> {
                     Project project = new Project();
                     project.setName(request.getName().trim());
                     project.setMembers(Math.max(1, request.getMembers()));
@@ -69,6 +69,6 @@ public class ProjectController {
                     project.setSemester(studentUser.getSemester());
                     return ResponseEntity.status(201).body(projectRepository.save(project));
                 })
-                .orElse(ResponseEntity.status(404).body(Map.of("error", "Student not found")));
+                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Student not found")));
     }
 }
