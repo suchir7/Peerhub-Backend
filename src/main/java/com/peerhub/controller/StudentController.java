@@ -44,8 +44,11 @@ public class StudentController {
                     Map<String, Object> row = new LinkedHashMap<>();
                     row.put("id", student.getId());
                     row.put("name", student.getName());
+                    row.put("email", student.getEmail());
                     row.put("initials", student.getInitials());
                     row.put("team", student.getCourseName() == null ? "Unassigned" : student.getCourseName());
+                    row.put("courseName", student.getCourseName() == null ? "" : student.getCourseName());
+                    row.put("semester", student.getSemester() == null ? "" : student.getSemester());
                     row.put("submissions", assignmentRepository.findByReviewerStudentIdOrderByIdDesc(student.getId()).size());
                     int reviewsGiven = assignmentRepository.findByReviewerStudentIdAndStatusOrderByIdDesc(student.getId(), "done").size();
                     row.put("reviews", reviewsGiven);
