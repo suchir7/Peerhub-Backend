@@ -113,6 +113,34 @@ public class StudentController {
         ));
     }
 
+    @PostMapping("/{studentId}/unassign")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<?> unassignStudent(@PathVariable Long studentId, Authentication auth) {
+        Claims claims = (Claims) auth.getPrincipal();
+        Number instructorIdNum = (Number) claims.get("id");
+        Long instructorId = instructorIdNum.longValue();
+
+        User student = userRepository.findById(studentId).orElse(null);
+        if (student == null || !"student".equalsIgnoreCase(student.getRole())) {
+            return ResponseEntity.status(404).body(Map.of("error", "Student not found"));
+        }
+        if (!instructorId.equals(student.getInstructorId())) {
+            return ResponseEntity.status(403).body(Map.of("error", "You can only remove your own students"));
+        }
+
+        student.setInstructorId(null);
+        student.setInstructorName(null);
+        student.setCourseName(null);
+        student.setSemester(null);
+        userRepository.save(student);
+
+        return ResponseEntity.ok(Map.of(
+                "id", student.getId(),
+                "name", student.getName(),
+                "message", "Student removed from course"
+        ));
+    }
+
     @GetMapping("/me-profile")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<?> getStudentProfile(Authentication auth) {
